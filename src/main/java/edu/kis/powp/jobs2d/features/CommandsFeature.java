@@ -6,12 +6,13 @@ import edu.kis.powp.jobs2d.command.manager.LoggerCommandChangeObserver;
 public class CommandsFeature {
 
 	private static DriverCommandManager commandManager;
+	private static LoggerCommandChangeObserver loggerObserver;
 
 	public static void setupCommandManager() {
 		commandManager = new DriverCommandManager();
 
-		LoggerCommandChangeObserver loggerObserver = new LoggerCommandChangeObserver();
-		commandManager.getChangePublisher().addSubscriber(loggerObserver);
+		loggerObserver = new LoggerCommandChangeObserver();
+		commandManager.addChangeSubscriber(loggerObserver);
 	}
 
 	/**
@@ -21,5 +22,8 @@ public class CommandsFeature {
 	 */
 	public static DriverCommandManager getDriverCommandManager() {
 		return commandManager;
+	}
+	public static LoggerCommandChangeObserver getLoggerObserver() {
+		return loggerObserver;
 	}
 }

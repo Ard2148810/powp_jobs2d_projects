@@ -4,16 +4,21 @@ import edu.kis.powp.appbase.Application;
 import edu.kis.powp.jobs2d.events.SelectClearPanelOptionListener;
 import edu.kis.legacy.drawer.panel.DrawPanelController;
 
+import javax.swing.*;
+
 public class DrawerFeature {
 
 	private static DrawPanelController drawerController;
+	private static JPanel panel;
 
 	/**
 	 * Setup Drawer Plugin and add to application.
-	 * 
+	 *
 	 * @param application Application context.
+	 * @param freePanel
 	 */
-	public static void setupDrawerPlugin(Application application) {
+	public static void setupDrawerPlugin(Application application, JPanel freePanel) {
+		panel = freePanel;
 		SelectClearPanelOptionListener selectClearPanelOptionListener = new SelectClearPanelOptionListener();
 
 		drawerController = new DrawPanelController();
@@ -30,5 +35,9 @@ public class DrawerFeature {
 	 */
 	public static DrawPanelController getDrawerController() {
 		return drawerController;
+	}
+
+	public static JPanel getPanel(){
+		return panel;
 	}
 }
