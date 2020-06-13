@@ -5,7 +5,7 @@
 	<version>0.0.3-SNAPSHOT</version>
 	<name>Visual2Djobs</name>
 	<description>POWP software for devices operating on 2d plane</description>
-
+  
 	<build>
 		<plugins>
 			<plugin>
