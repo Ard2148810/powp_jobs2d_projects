@@ -4,30 +4,31 @@ import java.awt.Container;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.event.ActionEvent;
-import java.util.ArrayList;
 import java.util.List;
 
-import javax.swing.*;
+import javax.swing.JButton;
+import javax.swing.JFrame;
+import javax.swing.JTextArea;
 
 import edu.kis.powp.appbase.gui.WindowComponent;
+import edu.kis.powp.jobs2d.command.manager.DriverCommandManager;
 import edu.kis.powp.observer.Subscriber;
 
 public class CommandManagerWindow extends JFrame implements WindowComponent {
 
-	private CommandManager commandManager;
+	private DriverCommandManager commandManager;
 
 	private JTextArea currentCommandField;
 
+	private String observerListString;
 	private JTextArea observerListField;
-
-	private final List<Subscriber> deletedSubscribers = new ArrayList<>();
 
 	/**
 	 * 
 	 */
 	private static final long serialVersionUID = 9204679248304669948L;
 
-	public CommandManagerWindow(CommandManager commandManager) {
+	public CommandManagerWindow(DriverCommandManager commandManager) {
 		this.setTitle("Command Manager");
 		this.setSize(400, 400);
 		Container content = this.getContentPane();
@@ -55,14 +56,6 @@ public class CommandManagerWindow extends JFrame implements WindowComponent {
 		content.add(currentCommandField, c);
 		updateCurrentCommandField();
 
-        JButton btnRunCommand = new JButton("Run command");
-        btnRunCommand.addActionListener((ActionEvent e) -> this.runCommand());
-        c.fill = GridBagConstraints.BOTH;
-        c.weightx = 1;
-        c.gridx = 0;
-        c.weighty = 1;
-        content.add(btnRunCommand, c);
-
 		JButton btnClearCommand = new JButton("Clear command");
 		btnClearCommand.addActionListener((ActionEvent e) -> this.clearCommand());
 		c.fill = GridBagConstraints.BOTH;
@@ -71,8 +64,8 @@ public class CommandManagerWindow extends JFrame implements WindowComponent {
 		c.weighty = 1;
 		content.add(btnClearCommand, c);
 
-		JToggleButton btnClearObservers = new JToggleButton("Delete observers");
-		btnClearObservers.addActionListener(this::deleteObservers);
+		JButton btnClearObservers = new JButton("Delete observers");
+		btnClearObservers.addActionListener((ActionEvent e) -> this.deleteObservers());
 		c.fill = GridBagConstraints.BOTH;
 		c.weightx = 1;
 		c.gridx = 0;
@@ -85,48 +78,35 @@ public class CommandManagerWindow extends JFrame implements WindowComponent {
 		updateCurrentCommandField();
 	}
 
-    private void runCommand() {
-		commandManager.runCommand();
-    }
-
 	public void updateCurrentCommandField() {
 		currentCommandField.setText(commandManager.getCurrentCommandString());
 	}
 
-	public void deleteObservers(ActionEvent e) {
-		JToggleButton button = (JToggleButton) e.getSource();
-		if(button.isSelected()) {
-			deletedSubscribers.addAll(commandManager.getChangeSubscribers());
-			commandManager.clearChangeSubscribers();
-			button.setText("Reset observers");
-		} else {
-			resetSubscribers();
-			button.setText("Delete observers");
-		}
-		updateObserverListField();
+	public void deleteObservers() {
+		commandManager.getChangePublisher().clearObservers();
+		this.updateObserverListField();
 	}
 
-	private void resetSubscribers() {
-		for(Subscriber subscriber : deletedSubscribers) {
-			commandManager.addChangeSubscriber(subscriber);
-		}
-		deletedSubscribers.clear();
-	}
-
-	public void updateObserverListField() {
-		StringBuilder observerListString = new StringBuilder();
-		List<Subscriber> commandChangeSubscribers = commandManager.getChangeSubscribers();
+	private void updateObserverListField() {
+		observerListString = "";
+		List<Subscriber> commandChangeSubscribers = commandManager.getChangePublisher().getSubscribers();
 		for (Subscriber observer : commandChangeSubscribers) {
-			observerListString.append(observer.toString()).append(System.lineSeparator());
+			observerListString += observer.toString() + System.lineSeparator();
 		}
 		if (commandChangeSubscribers.isEmpty())
-			observerListString = new StringBuilder("No observers loaded");
+			observerListString = "No observers loaded";
 
-		observerListField.setText(observerListString.toString());
+		observerListField.setText(observerListString);
 	}
 
 	@Override
 	public void HideIfVisibleAndShowIfHidden() {
-		this.setVisible(!this.isVisible());
+		updateObserverListField();
+		if (this.isVisible()) {
+			this.setVisible(false);
+		} else {
+			this.setVisible(true);
+		}
 	}
+
 }
